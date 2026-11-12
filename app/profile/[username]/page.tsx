@@ -1,7 +1,7 @@
 
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -105,14 +105,72 @@ function MemberProfileContent() {
   const [sneaklinkSent, setSneaklinkSent] = useState(false);
   const [notice, setNotice] = useState("");
   const [selectedMoment, setSelectedMoment] = useState<Moment | null>(null);
+const [savedProfile, setSavedProfile] = useState<{
+  name: string;
+  username: string;
+  bio: string;
+  interests: string[];
+  photo: string;
+} | null>(null);
 
+const [profileDataReady, setProfileDataReady] = useState(false);
+
+useEffect(() => {
+  try {
+    const saved = localStorage.getItem("dekulink-editable-profile");
+
+    if (saved) {
+      setSavedProfile(JSON.parse(saved));
+    }
+  } catch (error) {
+    console.error("Could not load saved profile:", error);
+  } finally {
+    setProfileDataReady(true);
+  }
+}, []);
   const username = params.username ?? "";
 
-  const profile = profiles.find(
-    (item) =>
-      item.username.replace(/^@/, "").toLowerCase() ===
-      username.toLowerCase()
-  );
+  
+const baseProfile = profiles.find(
+  (item) =>
+    item.username.replace(/^@/, "").toLowerCase() ===
+    username.toLowerCase()
+);
+
+const isSavedProfile =
+  savedProfile !== null &&
+  savedProfile.username.replace(/^@/, "").toLowerCase() ===
+    username.toLowerCase();
+
+const profile =
+  isSavedProfile && savedProfile
+    ? {
+        ...(baseProfile ?? {
+          id: 0,
+          name: savedProfile.name,
+          username: savedProfile.username,
+          bio: savedProfile.bio,
+          initials: "AG",
+          color: "blue",
+          online: true,
+          interests: [],
+          moments: [],
+        }),
+        name: savedProfile.name,
+        username: savedProfile.username,
+        bio: savedProfile.bio,
+        initials:
+          savedProfile.name
+            .trim()
+            .split(/\s+/)
+            .slice(0, 2)
+            .map((part) => part.charAt(0))
+            .join("")
+            .toUpperCase() || "AG",
+        interests: savedProfile.interests,
+        photo: savedProfile.photo || undefined,
+      }
+    : baseProfile;
 
   if (!profile) {
     return (

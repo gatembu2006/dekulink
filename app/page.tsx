@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { profiles } from "./data/profiles";
 import Link from "next/link";
 
@@ -72,6 +72,26 @@ export default function Home() {
     [search]
   );
 
+const [myProfile, setMyProfile] = useState<{
+  name: string;
+  username: string;
+  bio: string;
+  interests: string[];
+  photo: string;
+} | null>(null);
+
+useEffect(() => {
+  try {
+    const saved = localStorage.getItem("dekulink-editable-profile");
+
+    if (saved) {
+      setMyProfile(JSON.parse(saved));
+    }
+  } catch (error) {
+    console.error("Could not load account profile:", error);
+  }
+}, []);
+
   const toggleLike = (id: number) => {
     setLiked((old) => old.includes(id) ? old.filter((x) => x !== id) : [...old, id]);
   };
@@ -91,22 +111,95 @@ export default function Home() {
           <div className="header-actions">
             <button className="icon-button" aria-label="Search" onClick={() => setSearchOpen(!searchOpen)}>
               <Icon name="search" />
-            </button>
-            <button className="profile-trigger" onClick={() => setMenuOpen(!menuOpen)}>
-              <Avatar initials="AG" color="blue" size="small" />
-              <span className="profile-trigger-name">My profile</span>
-              <Icon name="menu" />
-            </button>
+           </button>
+<button
+  className="profile-trigger"
+  onClick={() => setMenuOpen(!menuOpen)}
+>
+  {myProfile?.photo ? (
+    <img
+      src={myProfile.photo}
+      alt={myProfile.name}
+      style={{
+        width: 44,
+        height: 44,
+        borderRadius: "50%",
+        objectFit: "cover",
+      }}
+    />
+  ) : (
+    <Avatar
+      initials={
+        myProfile?.name
+          ?.trim()
+          .split(/\s+/)
+          .slice(0, 2)
+          .map((part) => part.charAt(0))
+          .join("")
+          .toUpperCase() || "AG"
+      }
+      color="blue"
+      size="small"
+    />
+  )}
+
+  <span className="profile-trigger-name">
+    {myProfile?.name || "My profile"}
+  </span>
+
+  <Icon name="menu" />
+</button>
+
           </div>
 
           {menuOpen && (
             <>
               <button className="menu-backdrop" aria-label="Close menu" onClick={() => setMenuOpen(false)} />
               <div className="dropdown-menu">
-                <div className="dropdown-user">
-                  <Avatar initials="AG" color="blue" />
-                  <div><strong>Your profile</strong><span>@yourusername</span></div>
-                </div>
+     
+<div className="dropdown-user">
+  {myProfile?.photo ? (
+    <img
+      src={myProfile.photo}
+      alt={`${myProfile.name}'s profile`}
+      style={{
+        width: 64,
+        height: 64,
+        borderRadius: "50%",
+        objectFit: "cover",
+        flexShrink: 0,
+      }}
+    />
+  ) : (
+    <Avatar
+      initials={
+        myProfile?.name
+          ?.trim()
+          .split(/\s+/)
+          .slice(0, 2)
+          .map((part) => part.charAt(0))
+          .join("")
+          .toUpperCase() || "AG"
+      }
+      color="blue"
+    />
+  )}
+
+  <div>
+    <strong>{myProfile?.name || "Your profile"}</strong>
+    <span>{myProfile?.username || "@yourusername"}</span>
+  </div>
+</div>
+
+                <button
+  onClick={() => {
+    setMenuOpen(false);
+    window.location.href = "/edit-profile";
+  }}
+>
+  <Icon name="users" size={18} />
+  Edit Profile
+</button>
                 <button onClick={() => setDark(!dark)}>
                   <Icon name={dark ? "sun" : "moon"} size={18} />
                   {dark ? "Switch to light mode" : "Switch to dark mode"}
