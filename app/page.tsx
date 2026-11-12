@@ -2,69 +2,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { profiles } from "./data/profiles";
+import Link from "next/link";
 
-type Profile = {
-  id: number;
-  name: string;
-  username: string;
-  bio: string;
-  initials: string;
-  color: string;
-  online: boolean;
-  interests: string[];
-  photo?: string;
-};
-
-
-const profiles: Profile[] = [
-  {
-    id: 1,
-    name: "Michelle",
-    username: "@michelle.k",
-    bio: "Architecture student | Coffee enthusiast ☕",
-    initials: "MK",
-    color: "blue",
-    online: true,
-    interests: ["Music", "Travel"],
-    photo: "https://i.pravatar.cc/300?img=47",
-  },
-  {
-    id: 2,
-    name: "Brian",
-    username: "@brian.m",
-    bio: "Building things and chasing dreams.",
-    initials: "BM",
-    color: "purple",
-    online: true,
-    interests: ["Tech", "Gaming"],
-    photo: "https://i.pravatar.cc/300?img=12",
-  },
-  {
-    id: 3,
-    name: "Sharon",
-    username: "@sharon.w",
-    bio: "A little sunshine in a busy world.",
-    initials: "SW",
-    color: "pink",
-    online: false,
-    interests: ["Art", "Music"],
-    photo: "https://i.pravatar.cc/300?img=44",
-  },
-  {
-    id: 4,
-    name: "Kevin",
-    username: "@kevin.o",
-    bio: "Football, photography and good vibes.",
-    initials: "KO",
-    color: "green",
-    online: true,
-    interests: ["Football", "Photography"],
-    photo: "https://i.pravatar.cc/300?img=13",
-  },
-];
-
-
-const conversations = [
+   const conversations = [
   { name: "Michelle", initials: "MK", color: "blue", preview: "Hey! How was your day?", time: "2m", unread: true },
   { name: "Brian", initials: "BM", color: "purple", preview: "We should catch up sometime.", time: "1h", unread: false },
   { name: "Sharon", initials: "SW", color: "pink", preview: "Haha, that's actually funny 😂", time: "3h", unread: false },
@@ -266,9 +207,14 @@ export default function Home() {
                         <div className="interest-tags">
                           {profile.interests.map((interest) => <span key={interest}>{interest}</span>)}
                         </div>
-                        <button className="connect-button" onClick={() => alert("Profile pages and connection actions will be integrated in a future milestone.")}>
-                          View profile <Icon name="arrow" size={15} />
-                        </button>
+           
+<Link
+  href={`/profile/${encodeURIComponent(profile.username.replace(/^@/, ""))}`}
+  className="connect-button"
+>
+  View profile <Icon name="arrow" size={15} />
+</Link>
+
                       </div>
                     </article>
                   ))}
